@@ -31,6 +31,8 @@ def get_config(working_path):
     with open(os.path.join(working_path, CONFIG_FILE_NAME), 'r') as f:
         config = yaml.safe_load(f)
 
+    config['process-data'] = {}
+    
     return config
 
 def process(base_path = DEFAULT_WORK_PATH):
@@ -41,8 +43,17 @@ def process(base_path = DEFAULT_WORK_PATH):
     writers = get_writers(base_path, config)
 
     for report_data in config['reports']:
+        vcn_artifacts = oci_client.get_vcn_artifacts(oci_client, report_data['network-compartment-ocid'])
+
         report_builder.process_compartment_tree(report_data, oci_client, writers)
-        report_builder.process_vcn(report_data, oci_client, writers)
+        report_builder.process_vcn(report_data, vcn_artifacts, writers)
+        report_builder.process_network_artifacts(report_data, vcn_artifacts, writers)
+        report_builder.process_routing_tables(report_data, vcn_artifacts, writers)
+        report_builder.process_dhcp_options(report_data, vcn_artifacts, writers)
+        report_builder.process_security_lists(report_data, vcn_artifacts, writers)
+        report_builder.process_subnets(report_data, vcn_artifacts, writers)
+        report_builder.process_local_peering_gateways(report_data, vcn_artifacts, writers)
+        report_builder.process_network_security_groups(report_data, oci_client, vcn_artifacts, writers)
 
     close_writers(writers)
 
