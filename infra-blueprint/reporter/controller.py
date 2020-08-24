@@ -4,7 +4,7 @@ import os
 import yaml
 import report_builder
 
-DEFAULT_WORK_PATH = os.path.join(os.path.dirname(__file__), 'workspace')
+DEFAULT_WORK_PATH = os.path.join(os.path.dirname(__file__), '..', 'workspace')
 CONFIG_FILE_NAME = 'config.yaml'
 
 def get_writers(working_path, config):
@@ -40,9 +40,13 @@ def process(base_path = DEFAULT_WORK_PATH):
     oci_client = oci_utils.OCIClient()
 
     config = get_config(base_path)
+
+    print('')
+    print('Process started')
     writers = get_writers(base_path, config)
 
     for report_data in config['reports']:
+        print('Processing', report_data['name'], '...')
         vcn_artifacts = oci_client.get_vcn_artifacts(oci_client, report_data['network-compartment-ocid'])
 
         report_builder.process_compartment_tree(report_data, oci_client, writers)
@@ -57,6 +61,8 @@ def process(base_path = DEFAULT_WORK_PATH):
 
     close_writers(writers)
 
+    print('Done')
+    print('')
 if __name__ == '__main__':
 
     process()

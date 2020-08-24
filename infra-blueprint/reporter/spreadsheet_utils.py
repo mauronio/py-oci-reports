@@ -7,6 +7,8 @@ class SpreadSheetWriter(ReportWriter):
 
     def __init__(self, working_path, config):
 
+        super().__init__(working_path, config)
+
         self.settings = config['spreadsheet-settings']
         self.workbook = xlsxwriter.Workbook(os.path.join(working_path, self.settings['file-name']))
         self.bold_format = self.workbook.add_format({'bold': True})
